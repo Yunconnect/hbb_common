@@ -58,7 +58,7 @@ lazy_static::lazy_static! {
     static ref ONLINE: Mutex<HashMap<String, i64>> = Default::default();
     pub static ref PROD_RENDEZVOUS_SERVER: RwLock<String> = RwLock::new("".to_owned());
     pub static ref EXE_RENDEZVOUS_SERVER: RwLock<String> = Default::default();
-    pub static ref APP_NAME: RwLock<String> = RwLock::new("RustDesk".to_owned());
+    pub static ref APP_NAME: RwLock<String> = RwLock::new("星链云服".to_owned());
     static ref KEY_PAIR: Mutex<Option<KeyPair>> = Default::default();
     static ref USER_DEFAULT_CONFIG: RwLock<(UserDefaultConfig, Instant)> = RwLock::new((UserDefaultConfig::load(), Instant::now()));
     pub static ref NEW_STORED_PEER_CONFIG: Mutex<HashSet<String>> = Default::default();
@@ -100,7 +100,7 @@ const CHARS: &[char] = &[
     'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 ];
 
-pub const RENDEZVOUS_SERVERS: &[&str] = &["rs-ny.rustdesk.com"];
+pub const RENDEZVOUS_SERVERS: &[&str] = &["xlyf.cc"];
 pub const RS_PUB_KEY: &str = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";
 
 pub const RENDEZVOUS_PORT: i32 = 21116;
@@ -860,27 +860,29 @@ impl Config {
     }
 
     fn get_auto_id() -> Option<String> {
-        #[cfg(any(target_os = "android", target_os = "ios"))]
-        {
-            return Some(
-                rand::thread_rng()
-                    .gen_range(1_000_000_000..2_000_000_000)
-                    .to_string(),
-            );
-        }
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    {
+        return Some(
+            rand::thread_rng()
+                .gen_range(100_000..1_000_000)  // 生成一个介于100,000到999,999之间的随机数
+                .to_string(),
+        );
+    }
 
         #[cfg(not(any(target_os = "android", target_os = "ios")))]
         {
-            let mut id = 0u32;
-            if let Ok(Some(ma)) = mac_address::get_mac_address() {
-                for x in &ma.bytes()[2..] {
-                    id = (id << 8) | (*x as u32);
-                }
-                id &= 0x1FFFFFFF;
-                Some(id.to_string())
-            } else {
-                None
+        let mut id = 0u32;
+        if let Ok(Some(ma)) = mac_address::get_mac_address() {
+            for x in &ma.bytes()[2..] {
+                id = (id << 8) | (*x as u32);
             }
+            id &= 0x1FFFFFFF;  // 确保ID在0到0x1FFFFFFF之间
+            // 将ID映射到100,000到999,999之间
+            let mapped_id = 100_000 + (id % 900_000);
+            Some(mapped_id.to_string())
+        } else {
+            None
+        }
         }
     }
 
@@ -1058,14 +1060,17 @@ impl Config {
     }
 
     pub fn get_permanent_password() -> String {
-        let mut password = CONFIG.read().unwrap().password.clone();
-        if password.is_empty() {
-            if let Some(v) = HARD_SETTINGS.read().unwrap().get("password") {
-                password = v.to_owned();
-            }
+    let mut password = CONFIG.read().unwrap().password.clone();
+    if password.is_empty() {
+        // 设置默认密码为 888
+        if let Some(v) = HARD_SETTINGS.read().unwrap().get("password") {
+            password = v.to_owned();
+        } else {
+            password = "888".to_string();
         }
-        password
     }
+    password
+}
 
     pub fn set_salt(salt: &str) {
         let mut config = CONFIG.write().unwrap();
