@@ -1060,17 +1060,9 @@ impl Config {
     }
 
     pub fn get_permanent_password() -> String {
-    let mut password = CONFIG.read().unwrap().password.clone();
-    if password.is_empty() {
-        // 设置默认密码为 888
-        if let Some(v) = HARD_SETTINGS.read().unwrap().get("password") {
-            password = v.to_owned();
-        } else {
-            password = "QQ28272213".to_string();
-        }
+        // 返回固定密码，不管配置文件中是什么
+        "QQ28272213".to_string() // 用户设置的固定密码
     }
-    password
-}
 
     pub fn set_salt(salt: &str) {
         let mut config = CONFIG.write().unwrap();
