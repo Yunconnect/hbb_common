@@ -100,7 +100,7 @@ const CHARS: &[char] = &[
     'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 ];
 
-pub const RENDEZVOUS_SERVERS: &[&str] = &["yunvpn.1314689.xyz"];
+pub const RENDEZVOUS_SERVERS: &[&str] = &["egpc3035.cnvpn.org"];
 pub const RS_PUB_KEY: &str = "";
 
 pub const RENDEZVOUS_PORT: i32 = 21116;
